@@ -1,9 +1,21 @@
+import importlib
+import pkgutil
 from decimal import Decimal
 
 def format_decimal(value):
     if value is not None:
         return f"{Decimal(value):.2f}"
     return None
+
+def import_tasks(package):
+    """Dynamically imports all modules in the specified package."""
+    modules = {}
+    package_name = package.__name__
+    for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, package_name + "."):
+        if not ispkg:
+            module = importlib.import_module(modname)
+            modules[modname.split('.')[-1]] = module
+    return modules
 
 def process_excel_to_db(df, table_name, cursor, logger, update_stmt, insert_stmt, where_clause):
     not_affected, updated, inserted, deleted = 0, 0, 0, 0

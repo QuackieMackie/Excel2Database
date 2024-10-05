@@ -1,25 +1,10 @@
-import importlib
-import pkgutil
 from utils.config_util import load_config
 from utils.logging_util import setup_logger
 from utils.db_util import get_db_connection
 from dotenv import load_dotenv
+from utils.main_util import import_tasks
 
-def import_tasks(package):
-    """Dynamically imports all modules in the specified package."""
-    modules = {}
-    package_name = package.__name__
-    for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, package_name + "."):
-        if not ispkg:
-            module = importlib.import_module(modname)
-            modules[modname.split('.')[-1]] = module
-    return modules
-
-# Dynamically fetch all task .py files.
 import tasks
-
-task_modules = import_tasks(tasks)
-
 
 def main():
     load_dotenv()
@@ -27,6 +12,8 @@ def main():
     config = load_config()
     log_file = config['LOGGING']['log_dir']
     logger = setup_logger(log_file)
+
+    task_modules = import_tasks(tasks)
 
     connection = None
     try:
