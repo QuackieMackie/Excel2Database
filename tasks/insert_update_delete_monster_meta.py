@@ -1,10 +1,10 @@
 import pandas as pd
 
-def insert_update_delete_monster_metadata(connection, config, logger):
+def insert_update_delete_monster_meta(connection, config, logger):
     try:
         excel_file_path = config['EXCEL']['monster_data_sheet']
-        sheet_name = config['EXCEL']['monster_metadata_sheet_name']
-        table_name = config['DB_SETTINGS']['monster_metadata_table']
+        sheet_name = config['EXCEL']['monster_meta_sheet_name']
+        table_name = config['DB_SETTINGS']['monster_meta_table']
 
         # Load the Excel file into a DataFrame
         df = pd.read_excel(excel_file_path, sheet_name=sheet_name, engine='openpyxl')
@@ -46,7 +46,7 @@ def insert_update_delete_monster_metadata(connection, config, logger):
                 if all(existing_data.get(col.lower()) == row[col] for col in df.columns if
                        col.lower() in existing_data):
                     not_affected += 1
-                    logger.debug(f"No changes for Monster Metadata Row {index + 1}: {row.to_dict()}")
+                    logger.debug(f"No changes for Monster Meta Row {index + 1}: {row.to_dict()}")
                     continue
 
                 cursor.execute(
@@ -58,7 +58,7 @@ def insert_update_delete_monster_metadata(connection, config, logger):
                     (row['tag'], row['damageType'], row['modifier'], row['operation'], row['id'])
                 )
                 updated += 1
-                logger.info(f"Updated Monster Metadata Row {index + 1}: {row.to_dict()} from {existing_data}")
+                logger.info(f"Updated Monster Meta Row {index + 1}: {row.to_dict()} from {existing_data}")
             else:
                 cursor.execute(
                     f"""
@@ -69,7 +69,7 @@ def insert_update_delete_monster_metadata(connection, config, logger):
                     (row['id'], row['tag'], row['damageType'], row['modifier'], row['operation'])
                 )
                 inserted += 1
-                logger.info(f"Inserted New Monster Metadata Row {index + 1}: {row.to_dict()}")
+                logger.info(f"Inserted New Monster Meta Row {index + 1}: {row.to_dict()}")
 
         # Commit the changes
         connection.commit()
@@ -77,7 +77,7 @@ def insert_update_delete_monster_metadata(connection, config, logger):
 
         # Log the summary of operations
         logger.info(
-            f"Monster Metadata - Not Affected: {not_affected}, Updated: {updated}, Inserted: {inserted}, Deleted: {deleted}"
+            f"Monster Meta - Not Affected: {not_affected}, Updated: {updated}, Inserted: {inserted}, Deleted: {deleted}"
         )
     except Exception as e:
         logger.error(f"Error in main process: {e}")
